@@ -9,8 +9,8 @@ def extract_frames(path_to,path_from):
     video = cv2.VideoCapture(path_from)
     
     curr_frame = 0
-    os.chdir(path_to)
-    while(True):
+    os.chdir(r"C:\Users\oskar\OneDrive\Dokument\repo\kandidat\frames")
+    while(curr_frame<100):
         
         vid, frame = video.read()
         
@@ -38,6 +38,6 @@ def obtain_face(img_path):
         plt.imshow(face)
         plt.show()
     return faces[0]
-#extract_frames("frames",r"C:\Users\oskar\OneDrive\Dokument\repo\kandidat\video\1080 50fps - 2.MP4")
+extract_frames(r"C:\Users\oskar\OneDrive\Dokument\repo\kandidat\frames\frames2",r"stroke-video-analysis\video\108050fps-1.MP4")
 #delete_frames("frames")
 
