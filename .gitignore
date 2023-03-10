@@ -127,3 +127,10 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+.vs/ProjectSettings.json
+.vs/slnx.sqlite
+.vs/stroke-video-analysis/FileContentIndex/212d206a-2bad-48a3-9515-9f4cde7692a2.vsidx
+.vs/stroke-video-analysis/FileContentIndex/read.lock
+.vs/stroke-video-analysis/v17/.wsuo
+.vs/VSWorkspaceState.json
+.vscode/settings.json
