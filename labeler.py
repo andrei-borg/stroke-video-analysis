@@ -31,6 +31,6 @@ def labeler(video_path,label_path):
     return label
 
 
-labeler(r"C:\Users\oskar\Documents\repo\stroke-video-analysis\C00030j.MP4",r"C:\Users\oskar\Documents\repo\stroke-video-analysis\label1.csv")
+labeler(r"C:\Users\oskar\OneDrive\Dokument\repo\kandidat\stroke-video-analysis\1080 50fps - 2.MP4",r"C:\Users\oskar\OneDrive\Dokument\repo\kandidat\label1.csv")
 
 
