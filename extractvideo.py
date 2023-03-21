@@ -38,7 +38,7 @@ def obtain_face(img_path):
         plt.imshow(face)
         plt.show()
     return faces[0]
-delete_frames(r"C:\Users\oskar\OneDrive\Dokument\repo\kandidat\frames")
-#extract_frames(r"C:\Users\oskar\OneDrive\Dokument\repo\kandidat\frames",r"C:\Users\oskar\OneDrive\Dokument\repo\kandidat\video\108050fps-1.MP4")
+
+#extract_frames(r"C:\Users\oskar\Documents\repo\stroke-video-analysis\frames",r"C:\Users\oskar\Documents\repo\stroke-video-analysis\C0003.MP4")
 #delete_frames("frames")
 
