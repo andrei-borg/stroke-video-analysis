@@ -1,6 +1,10 @@
 import cv2
 import mediapipe as mp
 import time
+from math import dist
+import matplotlib.pyplot as plt
+from mpl_toolkits.axes_grid1 import ImageGrid
+from pyts.image import RecurrencePlot
 
 
 class FaceMeshDetector:
@@ -40,35 +44,39 @@ class FaceMeshDetector:
         self.results = self.faceMesh.process(self.imgRGB)
 
         faces = []
+        euc_distance_left = []
         if self.results.multi_face_landmarks:
             # Draw a face mesh for each detected face
             for faceLms in self.results.multi_face_landmarks:
                 if draw:
-                    self.mpDraw.draw_landmarks(
-                        img,
-                        faceLms,
-                        self.mpFaceMesh.FACEMESH_CONTOURS,
-                        self.drawSpec,
-                        self.drawSpec,
-                    )
-                face = []
-                for id, lm in enumerate(faceLms.landmark):
-                    ih, iw, ic = img.shape
-                    x, y = int(lm.x * iw), int(lm.y * ih)
-                    # Show id numbers for the landmarks
-                    cv2.putText(
-                        img,
-                        str(id),
-                        (x, y),
-                        cv2.FONT_HERSHEY_SIMPLEX,
-                        0.25,
-                        (255, 255, 0),
-                        1,
-                    )
-                    # Append x and y coordinates for each landmark
-                    face.append([x, y])
+                    face = []
+                    custom_points = [1, 57, 291]
+                    for p in custom_points:
+                        ih, iw, ic = img.shape
+                        x, y = int(faceLms.landmark[p].x * iw), int(
+                            faceLms.landmark[p].y * ih
+                        )
+                        if p == 1:
+                            nose_coords = [x, y]
+                        # Show id numbers for the landmarks
+                        cv2.putText(
+                            img,
+                            str(p),
+                            (x, y),
+                            cv2.FONT_HERSHEY_SIMPLEX,
+                            0.25,
+                            (255, 255, 0),
+                            1,
+                        )
+                        # Append x and y coordinates for each landmark
+                        face.append([x, y])
+                        # Calculate the eucledian distance between the landmarks
+                        if p == 57:
+                            euc_dist = dist([x, y], nose_coords)
+                            # print("EUC distance: ", euc_dist)
+                            euc_distance_left.append(euc_dist)
                 faces.append(face)
-        return img, faces
+        return img, faces, euc_distance_left
 
 
 def main():
@@ -84,7 +92,7 @@ def main():
     # Loop through each video frame
     while True:
         success, img = cap.read()
-        img, faces = detector.findFaceMesh(img)
+        img, faces, euc_dist = detector.findFaceMesh(img)
 
         # Stop the program if video ends or a frame cannot be read
         if not success:
@@ -106,12 +114,24 @@ def main():
         cv2.imshow("face_cam", img)
 
         # Exit if the 'q' key is pressed, use waitKey(1) for fastest fps
-        if cv2.waitKey(1) & 0xFF == ord("q"):
+        if cv2.waitKey(2) & 0xFF == ord("q"):
             print("Quitting video...")
             break
 
     cap.release()
     cv2.destroyAllWindows()
+
+    ## Recurrence plot ##
+
+    # Get the recurrence plots for all the time series
+    rp = RecurrencePlot(threshold="point", percentage=20)
+    X_rp = rp.fit_transform(euc_dist)
+
+    # Plot the recurrence plot
+    fig = plt.figure()
+    plt.imshow(X_rp, cmap="binary")
+
+    plt.show()
 
 
 if __name__ == "__main__":

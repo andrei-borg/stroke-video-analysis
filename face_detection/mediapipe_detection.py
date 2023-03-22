@@ -80,7 +80,7 @@ def main():
     video_path = "C:\\Users\\AndreiBorg\\stroke-extra\\C0016.MP4"
 
     # Use video_path or 0 for webcam
-    cap = cv2.VideoCapture(video_path)
+    cap = cv2.VideoCapture(0)
 
     pTime = 0
     detector = FaceDetector()
@@ -110,7 +110,7 @@ def main():
         cv2.imshow("face_cam", img)
 
         # Exit if the 'q' key is pressed, use waitKey(1) for fastest fps
-        if cv2.waitKey(2) & 0xFF == ord("q"):
+        if cv2.waitKey(1) & 0xFF == ord("q"):
             print("Quitting video...")
             break
 
