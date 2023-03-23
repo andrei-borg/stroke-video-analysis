@@ -1,6 +1,7 @@
 import cv2
 import mediapipe as mp
 import time
+import numpy as np
 from math import dist
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import ImageGrid
@@ -36,7 +37,7 @@ class FaceMeshDetector:
             self.minTrackCon,
         )
 
-    def findFaceMesh(self, img, draw=True):
+    def findFaceMesh(self, img, euc_dists, draw=True):
         # RGB conversion
         self.imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
@@ -44,7 +45,6 @@ class FaceMeshDetector:
         self.results = self.faceMesh.process(self.imgRGB)
 
         faces = []
-        euc_distance_left = []
         if self.results.multi_face_landmarks:
             # Draw a face mesh for each detected face
             for faceLms in self.results.multi_face_landmarks:
@@ -72,16 +72,17 @@ class FaceMeshDetector:
                         face.append([x, y])
                         # Calculate the eucledian distance between the landmarks
                         if p == 57:
-                            euc_dist = dist([x, y], nose_coords)
-                            # print("EUC distance: ", euc_dist)
-                            euc_distance_left.append(euc_dist)
+                            euc = dist([x, y], nose_coords)
+                            #print("EUC distance: ", euc_dist)
+                            euc_dists.append(euc)
+                            #print ("List:", euc_dists)
                 faces.append(face)
-        return img, faces, euc_distance_left
+        return img, faces, euc_dists
 
 
 def main():
     # Specify your path to your video file here
-    video_path = "C:\\Users\\AndreiBorg\\stroke-extra\\C0016.MP4"
+    video_path = "/Users/andreiborg/stroke-extra/Facialispares 1 - Andrei - 5.mp4"
 
     # Use video_path or 0 for webcam
     cap = cv2.VideoCapture(video_path)
@@ -89,14 +90,16 @@ def main():
     pTime = 0
     detector = FaceMeshDetector()
 
+    euc_distance_left = []
     # Loop through each video frame
     while True:
         success, img = cap.read()
-        img, faces, euc_dist = detector.findFaceMesh(img)
 
         # Stop the program if video ends or a frame cannot be read
         if not success:
             break
+        
+        img, faces, euc_dist = detector.findFaceMesh(img, euc_distance_left)
 
         # Fps counter
         cTime = time.time()
@@ -125,14 +128,24 @@ def main():
 
     # Get the recurrence plots for all the time series
     rp = RecurrencePlot(threshold="point", percentage=20)
-    X_rp = rp.fit_transform(euc_dist)
+    print("Before conversion to numoy array:", euc_dist)
+    X = np.array([euc_dist])
+    X_rp = rp.fit_transform(X)
 
-    # Plot the recurrence plot
-    fig = plt.figure()
-    plt.imshow(X_rp, cmap="binary")
+    # Plot the time series and its recurrence plot
+    fig = plt.figure(figsize=(6, 6))
+
+    gs = fig.add_gridspec(2, 2,  width_ratios=(2, 7), height_ratios=(2, 7),
+                      left=0.1, right=0.9, bottom=0.1, top=0.9,
+                      wspace=0.05, hspace=0.05)
+
+    ax_rp = fig.add_subplot(gs[1, 1])
+    ax_rp.imshow(X_rp[0], cmap='binary', origin='lower',
+             extent=[0, 4 * np.pi, 0, 4 * np.pi])
+    ax_rp.set_xticks([])
+    ax_rp.set_yticks([])  
 
     plt.show()
-
 
 if __name__ == "__main__":
     main()
