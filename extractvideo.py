@@ -24,6 +24,33 @@ def extract_frames(path_to,path_from):
     
     video.release()
     cv2.destroyAllWindows()
+
+def extract_face(data):
+    print("Processing: "+str(data)+"...")
+    video = cv2.VideoCapture(r'C:\Users\oskar\Documents\repo\stroke-video-analysis\test\\'+ data)
+    vid, frame = video.read()
+    faces = []
+    curr_frame = 0
+    path = data.replace(".mp4","")
+    if os.path.exists(r"C:\Users\oskar\Documents\repo\stroke-video-analysis\faces\\" + path):
+        return
+    os.mkdir(r"C:\Users\oskar\Documents\repo\stroke-video-analysis\faces\\" + path)
+    while(vid):
+        curr_frame +=1
+        vid, frame = video.read()
+        if vid:
+            face = media_pipe_detection(frame)
+            
+            name = r"C:\Users\oskar\Documents\repo\stroke-video-analysis\faces\\" + path + "\\" + path + 'frame' + str(curr_frame) + '.jpg'
+            cv2.imwrite(name, face)
+        else:
+            return
+    
+    
+    video.release()
+    cv2.destroyAllWindows()
+    
+    print("Done Processing:" + str(curr_frame) + " faces found")
     
 def delete_frames(path):
     os.chdir(path)
@@ -49,27 +76,19 @@ def media_pipe_detection(picture):
     face_detection = mp_face_detection.FaceDetection(model_selection=0, min_detection_confidence=0.5)
 
     sample_img = picture
-
     
     height = len(sample_img[:,:,::-1])
     width = len(sample_img[:,:,::-1][0])
-    # plt.imshow(sample_img[:,:,::-1])
-    # plt.show()
-    #print(width)
+
     face_detection_results = face_detection.process(sample_img[:,:,::-1])
     box = face_detection_results.detections[0].location_data.relative_bounding_box
     xmin = int(box.xmin * width)
     ymin = int(box.ymin * height)
     xmax = int(box.width * width + box.xmin * width)
     ymax = int(box.height * height + box.ymin * height)
-    # print(xmin)
-    # print(ymin)
-    # print(xmax)
-    # print(ymax)
-    # print(face_detection_results.detections[0].location_data.relative_bounding_box.ymin)
+
     crop_img = sample_img[ymin:ymax,xmin:xmax]
-    # plt.imshow(crop_img[:,:,::-1])
-    # plt.show()
+
     return crop_img[:,:,::]
 
 def extract_face(data):
