@@ -61,7 +61,7 @@ class FaceMeshDetector:
                         str(id),
                         (x, y),
                         cv2.FONT_HERSHEY_SIMPLEX,
-                        0.25,
+                        0.5,
                         (255, 255, 0),
                         1,
                     )
@@ -73,7 +73,7 @@ class FaceMeshDetector:
 
 def main():
     # Specify your path to your video file here
-    video_path = "C:\\Users\\AndreiBorg\\stroke-extra\\C0016.MP4"
+    video_path = "/Users/andreiborg/stroke-extra/Facialispares 1 - Andrei - 5.mp4"
 
     # Use video_path or 0 for webcam
     cap = cv2.VideoCapture(video_path)
@@ -84,11 +84,12 @@ def main():
     # Loop through each video frame
     while True:
         success, img = cap.read()
-        img, faces = detector.findFaceMesh(img)
 
         # Stop the program if video ends or a frame cannot be read
         if not success:
             break
+
+        img, faces = detector.findFaceMesh(img)
 
         # Fps counter
         cTime = time.time()
@@ -103,6 +104,11 @@ def main():
             (0, 255, 0),
             3,
         )
+
+        # Create named window and set window size
+        cv2.namedWindow("face_cam", cv2.WINDOW_NORMAL)
+        cv2.resizeWindow("face_cam", 1600, 1000)
+
         cv2.imshow("face_cam", img)
 
         # Exit if the 'q' key is pressed, use waitKey(1) for fastest fps
