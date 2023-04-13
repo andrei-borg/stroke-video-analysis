@@ -142,3 +142,4 @@ dmypy.json
 .vs/stroke-video-analysis/v17/.wsuo
 .vs/VSWorkspaceState.json
 .vscode/settings.json
+*.png
