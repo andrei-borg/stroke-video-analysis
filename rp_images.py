@@ -86,8 +86,8 @@ class FaceMeshDetector:
 
 def main():
     # Specify your path to your video file here + other ariables for quick editing
-    video_path = "/Volumes/ANDREI 1 TB/Kandidatarbete/Dataset Face/stroke/Videos/Facialispares 1 - Oskar - 1.mp4"
-    save_name = "data/test/Oskar_weakR1"
+    video_path = "D:\\Kandidatarbete\\extra2\\s10.mov"
+    save_name = "D:\\Kandidatarbete\\denna2\\weak19"
     # max_frame_length = 86
 
     # Use video_path or 0 for webcam

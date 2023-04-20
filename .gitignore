@@ -143,3 +143,7 @@ dmypy.json
 .vs/VSWorkspaceState.json
 .vscode/settings.json
 *.png
+rp_data/valid/._.DS_Store
+rp_data/train/._.DS_Store
+rp_data/test/._.DS_Store
+rp_data/._.DS_Store

@@ -13,23 +13,23 @@ gen = ImageDataGenerator(
     horizontal_flip=True,
 )
 
-for filename in os.listdir("rp_data/train/stroke"):
-    if 'weak' in filename:
+for filename in os.listdir("rp_data/valid/normal"):
+    if 'normal' in filename:
 
-        image_path = "rp_data/train/stroke/" + filename
+        image_path = "rp_data/valid/normal/" + filename
         
         image = np.expand_dims(plt.imread(image_path), 0)
 
         aug_iter = gen.flow(
             image,
-            save_to_dir="rp_data/denna2",
-            save_prefix="aug",
+            save_to_dir="rp_data/valid/normal",
+            save_prefix="new",
             save_format="png",
         )
 
         aug_images = [
             next(aug_iter)[0].astype(np.uint8)
-            for i in range(35)  # Change range(x) for generating x augmentations
+            for i in range(50)  # Change range(x) for generating x augmentations
         ]
 
         print("Created augmented images for:", filename)
