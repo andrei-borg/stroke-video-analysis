@@ -73,7 +73,9 @@ class FaceMeshDetector:
 
 def main():
     # Specify your path to your video file here
-    video_path = "/Users/andreiborg/stroke-extra/Facialispares 1 - Andrei - 5.mp4"
+    video_path = (
+        "D:\\Kandidatarbete\\Dataset Face\\non-stroke\\mouth\\Sequence 01_1.mp4"
+    )
 
     # Use video_path or 0 for webcam
     cap = cv2.VideoCapture(video_path)
@@ -107,7 +109,7 @@ def main():
 
         # Create named window and set window size
         cv2.namedWindow("face_cam", cv2.WINDOW_NORMAL)
-        cv2.resizeWindow("face_cam", 1600, 1000)
+        cv2.resizeWindow("face_cam", 1400, 800)
 
         cv2.imshow("face_cam", img)
 

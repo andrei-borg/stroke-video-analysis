@@ -37,7 +37,15 @@ class FaceMeshDetector:
             self.minTrackCon,
         )
 
-    def findFaceMesh(self, img, euc_dist_left, euc_dist_right, draw=True):
+    def findFaceMesh(
+        self,
+        img,
+        euc_dist_left_mouth,
+        euc_dist_right_mouth,
+        euc_dist_left_eye,
+        euc_dist_right_eye,
+        draw=True,
+    ):
         # RGB conversion
         self.imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
@@ -50,7 +58,7 @@ class FaceMeshDetector:
             for faceLms in self.results.multi_face_landmarks:
                 if draw:
                     face = []
-                    custom_points = [93, 323, 57, 291]
+                    custom_points = [93, 323, 57, 291, 159, 23, 385, 253]
                     for p in custom_points:
                         ih, iw, ic = img.shape
                         x, y = int(faceLms.landmark[p].x * iw), int(
@@ -60,6 +68,11 @@ class FaceMeshDetector:
                             left_ear = [x, y]
                         if p == 323:
                             right_ear = [x, y]
+                        if p == 159:
+                            left_upper_eye = [x, y]
+                        if p == 385:
+                            right_upper_eye = [x, y]
+
                         # Show id numbers for the landmarks
                         cv2.putText(
                             img,
@@ -75,29 +88,44 @@ class FaceMeshDetector:
                         # Calculate the eucledian distance between the landmarks
                         if p == 57:
                             # print("EUC distance: ", euc_dist)
-                            euc_dist_left.append(math.dist([x, y], left_ear))
+                            euc_dist_left_mouth.append(math.dist([x, y], left_ear))
                             # print ("List:", euc_dists)
                         if p == 291:
-                            euc_dist_right.append(math.dist([x, y], right_ear))
-                            # print ("List:", euc_dist_right)
-                faces.append(face)
-        return img, faces, euc_dist_left, euc_dist_right
+                            euc_dist_right_mouth.append(math.dist([x, y], right_ear))
+                            # print ("List:", euc_dist_right_mouth)
+                        if p == 23:
+                            euc_dist_left_eye.append(math.dist([x, y], left_upper_eye))
+                        if p == 253:
+                            euc_dist_right_eye.append(
+                                math.dist([x, y], right_upper_eye)
+                            )
+        return (
+            img,
+            faces,
+            euc_dist_left_mouth,
+            euc_dist_right_mouth,
+            euc_dist_left_eye,
+            euc_dist_right_eye,
+        )
 
 
 def main():
+    ## ----- Mouth ----- ##
+
     # Specify your path to your video file here + other ariables for quick editing
-    video_path = "D:\\Kandidatarbete\\extra2\\s10.mov"
-    save_name = "D:\\Kandidatarbete\\denna2\\weak19"
+    video_path = "D:\\Kandidatarbete\\Dataset Face\\stroke\\Mouth\\Andrei_wL1.mp4"
+    save_name = "D:\\Kandidatarbete\\new\\mouth.png"
     # max_frame_length = 86
 
     # Use video_path or 0 for webcam
     cap = cv2.VideoCapture(video_path)
 
-    pTime = 0
     detector = FaceMeshDetector()
 
-    euc_distance_left = []
-    euc_distance_right = []
+    euc_distance_left_mouth = []
+    euc_distance_right_moth = []
+    euc_distance_left_eye = []
+    euc_distance_right_eye = []
 
     # Loop through each video frame
     # for i in range(max_frame_length):
@@ -108,23 +136,14 @@ def main():
         if not success:
             break
 
-        img, faces, euc_l, euc_r = detector.findFaceMesh(
-            img, euc_distance_left, euc_distance_right
+        img, faces, euc_lm, euc_rm, euc_le, euc_re = detector.findFaceMesh(
+            img,
+            euc_distance_left_mouth,
+            euc_distance_right_moth,
+            euc_distance_left_eye,
+            euc_distance_right_eye,
         )
 
-        # Fps counter
-        cTime = time.time()
-        fps = 1 / (cTime - pTime)
-        pTime = cTime
-        cv2.putText(
-            img,
-            f"MediaPipe - FPS: {int(fps)}",
-            (20, 70),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            3,
-            (0, 255, 0),
-            3,
-        )
         cv2.imshow("face_cam", img)
 
         # Exit if the 'q' key is pressed, use waitKey(1) for fastest fps
@@ -136,20 +155,114 @@ def main():
     cv2.destroyAllWindows()
 
     ## Recurrence plot ##
-    euc_l = np.array(euc_l)
-    euc_r = np.array(euc_r)
+    euc_lm = np.array(euc_lm)
+    euc_rm = np.array(euc_rm)
 
     # Recurrence plot transformation
     # Convert the time series data to recurrence plots with the pyts library
-    rp_l = RecurrencePlot(threshold="point", percentage=20).fit_transform(
-        euc_l.reshape(1, -1)
+    rp_lm = RecurrencePlot(threshold="point", percentage=20).fit_transform(
+        euc_lm.reshape(1, -1)
     )[0]
-    rp_r = RecurrencePlot(threshold="point", percentage=20).fit_transform(
-        euc_r.reshape(1, -1)
+    rp_rm = RecurrencePlot(threshold="point", percentage=20).fit_transform(
+        euc_rm.reshape(1, -1)
+    )[0]
+
+    # Create a figure with three subplots
+    fig, axs = plt.subplots(nrows=1, ncols=3, figsize=(10, 5))
+
+    # Plot the first recurrence plot in the first subplot
+    axs[0].imshow(rp_lm, cmap="gray")
+    axs[0].set_title("Vänster")
+    axs[0].axis("off")
+    axs[0].invert_yaxis()
+
+    # Plot the second recurrence plot in the second subplot
+    axs[1].imshow(rp_rm, cmap="gray")
+    axs[1].set_title("Höger")
+    axs[1].axis("off")
+    axs[1].invert_yaxis()
+
+    # Concatenate the two recurrence plots horizontally
+    concatenated_rp = np.concatenate((rp_lm, rp_rm), axis=1)
+
+    # Plot the concatenated recurrence plot in the third subplot
+    axs[2].imshow(concatenated_rp, cmap="gray")
+    axs[2].set_title("Kombinerade Recurrence Plots")
+    axs[2].axis("off")
+    axs[2].invert_yaxis()
+
+    # Adjust the layout and save the figure with a specific size
+    fig.set_size_inches(10, 5)
+    plt.savefig("recurrence_plots.png", bbox_inches="tight", pad_inches=0, dpi=300)
+    plt.show()
+    ## Create a figure and plot the concatenated recurrence plot
+    # fig, ax = plt.subplots(figsize=(5, 5))
+    # ax.axis("off")  # Turn off axis
+    # ax.imshow(concatenated_rp, cmap="gray")
+    ## ax.set_title('Concatenated Recurrence Plot')
+    # ax.invert_yaxis()  # Flip the y-axis
+    #
+    ## Adjust the layout and save the figure with a specific size
+    # fig.set_size_inches(1, 1)
+    # plt.savefig(save_name, bbox_inches="tight", pad_inches=0, dpi=300)
+    # plt.close()
+
+    ## ----- Eyes ----- ##
+
+    # Specify your path to your video file here + other ariables for quick editing
+    video_path2 = "D:\\Kandidatarbete\\Dataset Face\\stroke\\Eyes\\Facialispares 3 - Marcus - 1.mp4"
+    save_name2 = "D:\\Kandidatarbete\\new\\eye.png"
+    # max_frame_length = 86
+
+    # Use video_path or 0 for webcam
+    cap = cv2.VideoCapture(video_path2)
+
+    detector = FaceMeshDetector()
+
+    euc_distance_left_mouth = []
+    euc_distance_right_moth = []
+    euc_distance_left_eye = []
+    euc_distance_right_eye = []
+
+    # Loop through each video frame
+    # for i in range(max_frame_length):
+    while True:
+        success, img = cap.read()
+
+        # Stop the program if video ends or a frame cannot be read
+        if not success:
+            break
+
+        img, faces, euc_lm, euc_rm, euc_le, euc_re = detector.findFaceMesh(
+            img,
+            euc_distance_left_mouth,
+            euc_distance_right_moth,
+            euc_distance_left_eye,
+            euc_distance_right_eye,
+        )
+
+        cv2.imshow("face_cam", img)
+
+        # Exit if the 'q' key is pressed, use waitKey(1) for fastest fps
+        if cv2.waitKey(2) & 0xFF == ord("q"):
+            print("Quitting video...")
+            break
+
+    ## Recurrence plot ##
+    euc_le = np.array(euc_le)
+    euc_re = np.array(euc_re)
+
+    # Recurrence plot transformation
+    # Convert the time series data to recurrence plots with the pyts library
+    rp_le = RecurrencePlot(threshold="point", percentage=20).fit_transform(
+        euc_le.reshape(1, -1)
+    )[0]
+    rp_re = RecurrencePlot(threshold="point", percentage=20).fit_transform(
+        euc_re.reshape(1, -1)
     )[0]
 
     # Concatenate the two recurrence plots horizontally
-    concatenated_rp = np.concatenate((rp_l, rp_r), axis=1)
+    concatenated_rp = np.concatenate((rp_le, rp_re), axis=1)
 
     # Create a figure with three subplots
     # Create a figure and plot the concatenated recurrence plot
@@ -160,8 +273,8 @@ def main():
     ax.invert_yaxis()  # Flip the y-axis
 
     # Adjust the layout and save the figure with a specific size
-    fig.set_size_inches(4, 4)
-    plt.savefig(save_name, bbox_inches="tight", pad_inches=0, dpi=300)
+    fig.set_size_inches(2, 2)
+    plt.savefig(save_name2, bbox_inches="tight", pad_inches=0, dpi=300)
     plt.close()
 
 

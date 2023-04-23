@@ -6,7 +6,8 @@ import time
 import numpy as np
 import math
 import matplotlib.pyplot as plt
-from pyts.image import RecurrencePlot
+
+# from pyts.image import RecurrencePlot
 
 
 class FaceMeshDetector:
@@ -86,67 +87,73 @@ class FaceMeshDetector:
 
 
 def main():
-    # Specify your path to your video file here + other ariables for quick editing
-    video_path = "D:\\Kandidatarbete\\Dataset Face\\stroke\\Videos\\Facialpares 1 - Andrei - 1.mp4"
-    #save_name = "D:\\Kandidatarbete\\denna2\\weak19"
-    # max_frame_length = 86
+    video_path = "D:\\Kandidatarbete\\Dataset Face\\non-stroke\\mouth"
+    row_data = []
+    for i, filename in enumerate(os.listdir(video_path)):
+        # Specify your path to your video file here + other ariables for quick editing
+        # save_name = "D:\\Kandidatarbete\\denna2\\weak19"
+        # max_frame_length = 86
 
-    # Use video_path or 0 for webcam
-    cap = cv2.VideoCapture(video_path)
+        # Use video_path or 0 for webcam
+        cap = cv2.VideoCapture(video_path + "\\" + filename)
 
-    pTime = 0
-    detector = FaceMeshDetector()
+        pTime = 0
+        detector = FaceMeshDetector()
 
-    euc_distance_left = []
-    euc_distance_right = []
+        euc_distance_left = []
+        euc_distance_right = []
 
-    # Loop through each video frame
-    # for i in range(max_frame_length):
-    while True:
-        success, img = cap.read()
+        # Loop through each video frame
+        # for i in range(max_frame_length):
+        while True:
+            success, img = cap.read()
 
-        # Stop the program if video ends or a frame cannot be read
-        if not success:
-            break
+            # Stop the program if video ends or a frame cannot be read
+            if not success:
+                break
 
-        img, faces, euc_l, euc_r = detector.findFaceMesh(
-            img, euc_distance_left, euc_distance_right
-        )
+            img, faces, euc_l, euc_r = detector.findFaceMesh(
+                img, euc_distance_left, euc_distance_right
+            )
 
-        # Fps counter
-        cTime = time.time()
-        fps = 1 / (cTime - pTime)
-        pTime = cTime
-        cv2.putText(
-            img,
-            f"MediaPipe - FPS: {int(fps)}",
-            (20, 70),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            3,
-            (0, 255, 0),
-            3,
-        )
-        cv2.imshow("face_cam", img)
+            # Fps counter
+            cTime = time.time()
+            fps = 1 / (cTime - pTime)
+            pTime = cTime
+            cv2.putText(
+                img,
+                f"MediaPipe - FPS: {int(fps)}",
+                (20, 70),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                3,
+                (0, 255, 0),
+                3,
+            )
+            cv2.imshow("face_cam", img)
 
-        # Exit if the 'q' key is pressed, use waitKey(1) for fastest fps
-        if cv2.waitKey(2) & 0xFF == ord("q"):
-            print("Quitting video...")
-            break
+            # Exit if the 'q' key is pressed, use waitKey(1) for fastest fps
+            if cv2.waitKey(2) & 0xFF == ord("q"):
+                print("Quitting video...")
+                break
 
-    cap.release()
-    cv2.destroyAllWindows()
+        cap.release()
+        cv2.destroyAllWindows()
 
-    ## Recurrence data ##
-    #euc_l = np.array(euc_l)
-    #euc_r = np.array(euc_r)
+        ## Recurrence data ##
+        # euc_l = np.array(euc_l)
+        # euc_r = np.array(euc_r)
+
+        row_data.append(list(zip(euc_l, euc_r)))
+        print(row_data)
+        # For debugging
+        print("Videos found:", i + 1)
 
     # Open the CSV file for writing
-with open('stroke.csv', mode='w', newline='') as csv_file:
-    # Create a writer object
-    writer = csv.writer(csv_file)
-    
-    # Write the list into an individual row
-    writer.writerow(list(zip(euc_l, euc_r)))
+    with open("rp_data\\normal.csv", mode="w", newline="") as csv_file:
+        # Create a writer object
+        writer = csv.writer(csv_file)
+        # Write the updated rows to the file
+        writer.writerows(row_data)
 
 
 if __name__ == "__main__":
