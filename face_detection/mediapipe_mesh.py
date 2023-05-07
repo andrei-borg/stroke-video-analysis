@@ -21,7 +21,7 @@ class FaceMeshDetector:
         # Face mesh model
         self.mpDraw = mp.solutions.drawing_utils
         self.drawSpec = self.mpDraw.DrawingSpec(
-            color=(255, 255, 0), thickness=1, circle_radius=1
+            color=(255, 255, 255), thickness=2, circle_radius=1
         )
         self.mpFaceMesh = mp.solutions.face_mesh
         self.faceMesh = self.mpFaceMesh.FaceMesh(
@@ -56,15 +56,15 @@ class FaceMeshDetector:
                     ih, iw, ic = img.shape
                     x, y = int(lm.x * iw), int(lm.y * ih)
                     # Show id numbers for the landmarks
-                    cv2.putText(
-                        img,
-                        str(id),
-                        (x, y),
-                        cv2.FONT_HERSHEY_SIMPLEX,
-                        0.5,
-                        (255, 255, 0),
-                        1,
-                    )
+                    # cv2.putText(
+                    #    img,
+                    #    str(id),
+                    #    (x, y),
+                    #    cv2.FONT_HERSHEY_SIMPLEX,
+                    #    2,
+                    #    (255, 255, 255),
+                    #    1,
+                    # )
                     # Append x and y coordinates for each landmark
                     face.append([x, y])
                 faces.append(face)
@@ -74,7 +74,7 @@ class FaceMeshDetector:
 def main():
     # Specify your path to your video file here
     video_path = (
-        "D:\\Kandidatarbete\\Dataset Face\\non-stroke\\mouth\\Sequence 01_1.mp4"
+        "C:\\Users\\AndreiBorg\\stroke-extra\\Facialispares_Baseline_Viktor.MP4"
     )
 
     # Use video_path or 0 for webcam
@@ -99,19 +99,19 @@ def main():
         pTime = cTime
         cv2.putText(
             img,
-            f"MediaPipe - FPS: {int(fps)}",
-            (20, 70),
+            f"MediaPipe",
+            (680, 120),
             cv2.FONT_HERSHEY_SIMPLEX,
-            3,
-            (0, 255, 0),
-            3,
+            4,
+            (0, 90, 255),
+            8,
         )
 
-        # Create named window and set window size
-        cv2.namedWindow("face_cam", cv2.WINDOW_NORMAL)
-        cv2.resizeWindow("face_cam", 1400, 800)
-
-        cv2.imshow("face_cam", img)
+        ## Create named window and set window size
+        # cv2.namedWindow("face_cam", cv2.WINDOW_NORMAL)
+        # cv2.resizeWindow("face_cam", 1400, 800)
+        #
+        # cv2.imshow("face_cam", img)
 
         # Exit if the 'q' key is pressed, use waitKey(1) for fastest fps
         if cv2.waitKey(1) & 0xFF == ord("q"):
