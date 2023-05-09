@@ -6,7 +6,6 @@ import numpy as np
 import math
 import matplotlib.pyplot as plt
 from pyts.image import RecurrencePlot
-from rp_images import FaceMeshDetector
 from keras.models import Sequential
 from keras.layers import (
     Conv2D,
@@ -15,7 +14,105 @@ from keras.layers import (
     Dense,
 )
 from PIL import Image
+class FaceMeshDetector:
+    def __init__(
+        self,
+        staticMode=False,
+        maxFaces=2,
+        redefineLms=False,
+        minDetectionCon=0.5,
+        minTrackCon=0.5,
+    ):
+        self.staticMode = staticMode
+        self.maxFaces = maxFaces
+        self.redefineLms = redefineLms
+        self.minDetectionCon = minDetectionCon
+        self.minTrackCon = minTrackCon
 
+        # Face mesh model
+        self.mpDraw = mp.solutions.drawing_utils
+        self.drawSpec = self.mpDraw.DrawingSpec(
+            color=(255, 255, 255), thickness=1, circle_radius=1
+        )
+        self.mpFaceMesh = mp.solutions.face_mesh
+        self.faceMesh = self.mpFaceMesh.FaceMesh(
+            self.staticMode,
+            self.maxFaces,
+            self.redefineLms,
+            self.minDetectionCon,
+            self.minTrackCon,
+        )
+
+    def findFaceMesh(
+        self,
+        img,
+        euc_dist_left_mouth,
+        euc_dist_right_mouth,
+        euc_dist_left_eye,
+        euc_dist_right_eye,
+        draw=True,
+    ):
+        # RGB conversion
+        self.imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
+        # Detection
+        self.results = self.faceMesh.process(self.imgRGB)
+
+        faces = []
+        if self.results.multi_face_landmarks:
+            # Draw a face mesh for each detected face
+            for faceLms in self.results.multi_face_landmarks:
+                if draw:
+                    face = []
+                    custom_points = [93, 323, 57, 291, 159, 23, 385, 253]
+                    for p in custom_points:
+                        ih, iw, ic = img.shape
+                        x, y = int(faceLms.landmark[p].x * iw), int(
+                            faceLms.landmark[p].y * ih
+                        )
+                        if p == 93:
+                            left_ear = [x, y]
+                        if p == 323:
+                            right_ear = [x, y]
+                        if p == 159:
+                            left_upper_eye = [x, y]
+                        if p == 385:
+                            right_upper_eye = [x, y]
+
+                        # Show id numbers for the landmarks
+                        cv2.putText(
+                            img,
+                            str(p),
+                            (x, y),
+                            cv2.FONT_HERSHEY_SIMPLEX,
+                            0.15,
+                            (255, 255, 255),
+                            1,
+                        )
+                        # Append x and y coordinates for each landmark
+                        face.append([x, y])
+                        # Calculate the eucledian distance between the landmarks
+                        if p == 57:
+                            # print("EUC distance: ", euc_dist)
+                            euc_dist_left_mouth.append(math.dist([x, y], left_ear))
+                            # print ("List:", euc_dists)
+                        if p == 291:
+                            euc_dist_right_mouth.append(math.dist([x, y], right_ear))
+                            # print ("List:", euc_dist_right_mouth)
+                        if p == 23:
+                            euc_dist_left_eye.append(math.dist([x, y], left_upper_eye))
+                        if p == 253:
+                            euc_dist_right_eye.append(
+                                math.dist([x, y], right_upper_eye)
+                            )
+        return (
+            img,
+            faces,
+            euc_dist_left_mouth,
+            euc_dist_right_mouth,
+            euc_dist_left_eye,
+            euc_dist_right_eye,
+        )
 
 def main():
     # Mouth
@@ -23,8 +120,9 @@ def main():
     img_width_mouth = 930
 
     # Specify your path to your video file here + other ariables for quick editing
-    video_path = "D:\\Kandidatarbete\\Dataset Face\\stroke\\Mouth\\Andrei_wL1.mp4"
-    save_name = "D:\\Kandidatarbete\\output\\mouth.png"
+    #video_path = "D:\\Kandidatarbete\\Dataset Face\\stroke\\Mouth\\Andrei_wL1.mp4"
+    #save_name = "D:\\Kandidatarbete\\output\\mouth.png"
+    save_name = "/Volumes/ANDREI 1 TB/Kandidatarbete/output/mouth.png"
     # max_frame_length = 86
 
     # Use video_path or 0 for webcam
