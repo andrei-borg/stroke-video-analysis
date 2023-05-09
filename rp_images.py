@@ -26,7 +26,7 @@ class FaceMeshDetector:
         # Face mesh model
         self.mpDraw = mp.solutions.drawing_utils
         self.drawSpec = self.mpDraw.DrawingSpec(
-            color=(255, 255, 0), thickness=1, circle_radius=1
+            color=(255, 255, 255), thickness=1, circle_radius=1
         )
         self.mpFaceMesh = mp.solutions.face_mesh
         self.faceMesh = self.mpFaceMesh.FaceMesh(
@@ -79,8 +79,8 @@ class FaceMeshDetector:
                             str(p),
                             (x, y),
                             cv2.FONT_HERSHEY_SIMPLEX,
-                            0.25,
-                            (255, 255, 0),
+                            0.15,
+                            (255, 255, 255),
                             1,
                         )
                         # Append x and y coordinates for each landmark
