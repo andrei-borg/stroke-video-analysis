@@ -3,18 +3,20 @@ import os
 import keyboard
 import csv
 
-def labeler(video_path,label_path):
+
+# Code for creating labels in video frames
+def labeler(video_path, label_path):
     label = []
     video = cv2.VideoCapture(video_path)
     vid, frame = video.read()
-    
+
     k = 0
     try:
-        while(vid):
+        while vid:
             i = 0
             vid, frame = video.read()
             if vid:
-                cv2.imshow("frame1",frame)
+                cv2.imshow("frame1", frame)
                 cv2.waitKey(0)
                 i = keyboard.read_key()
                 print(i)
@@ -23,7 +25,7 @@ def labeler(video_path,label_path):
                 break
     except KeyboardInterrupt:
         pass
-    f = open(label_path, 'w')
+    f = open(label_path, "w")
 
     writer = csv.writer(f)
     writer.writerow(label)

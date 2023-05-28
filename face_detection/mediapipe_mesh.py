@@ -1,6 +1,14 @@
 import cv2
-import mediapipe as mp
 import time
+
+import mediapipe as mp
+
+"""
+This module provides functions to perform face mesh detection with Mediapipe.
+
+Author: Code mostly used from https://www.computervision.zone/courses/advance-computer-vision-with-python/
+Date: May 28, 2023
+"""
 
 
 class FaceMeshDetector:

@@ -1,6 +1,14 @@
 import cv2
 import time
+
 import mediapipe as mp
+
+"""
+This module provides functions to perform face detection with Mediapipe.
+
+Author: Code mostly used from https://www.computervision.zone/courses/advance-computer-vision-with-python/
+Date: May 28, 2023
+"""
 
 
 class FaceDetector(object):
@@ -38,13 +46,13 @@ class FaceDetector(object):
                     img = self.fancyDraw(img, bbox)
                     # Detection score
                     # cv2.putText(
-                    #    img,
-                    #    f"{int(detection.score[0]*100)}%",
-                    #    (bbox[0], bbox[1] - 20),
-                    #    cv2.FONT_HERSHEY_SIMPLEX,
-                    #    2,
-                    #    (255, 0, 255),
-                    #    3,
+                    #   img,
+                    #   f"{int(detection.score[0]*100)}%",
+                    #   (bbox[0], bbox[1] - 20),
+                    #   cv2.FONT_HERSHEY_SIMPLEX,
+                    #   2,
+                    #   (255, 0, 255),
+                    #   3,
                     # )
         return img, bboxs
 
@@ -52,6 +60,7 @@ class FaceDetector(object):
         x, y, w, h = bbox
         x1, y1 = x + w, y + h
         white = (255, 255, 255)
+
         # Top left corner
         cv2.rectangle(img, bbox, white, rt)
         cv2.line((img), (x, y), (x + l, y), white, t)
@@ -111,7 +120,7 @@ def main():
         )
         cv2.imshow("face_cam", img)
 
-        # Exit if the 'q' key is pressed, use waitKey(1) for fastest fps
+        # Exit if the "q" key is pressed, use waitKey(1) for fastest fps
         if cv2.waitKey(1) & 0xFF == ord("q"):
             print("Quitting video...")
             break

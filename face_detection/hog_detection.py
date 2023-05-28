@@ -2,6 +2,13 @@ import cv2
 import dlib
 import time
 
+"""
+This module provides functions to perform face detection with HOG.
+
+Author: Andrei Borg
+Date: May 28, 2023
+"""
+
 
 class FaceDetector(object):
     def __init__(self):
@@ -94,7 +101,7 @@ def main():
         )
         cv2.imshow("face_cam", img)
 
-        # Exit if the 'q' key is pressed, use waitKey(1) for fastest fps
+        # Exit if the "q" key is pressed, use waitKey(1) for fastest fps
         if cv2.waitKey(1) & 0xFF == ord("q"):
             print("Quitting video...")
             break

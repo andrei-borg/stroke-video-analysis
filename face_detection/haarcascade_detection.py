@@ -1,6 +1,13 @@
 import cv2
 import time
 
+"""
+This module provides functions to perform face detection with Haar Cascade.
+
+Author: Andrei Borg
+Date: May 28, 2023
+"""
+
 # Pre-trained weights from cv2 data folder
 cascPath = "C:\\Users\\AndreiBorg\\anaconda3\\envs\\haar\\Lib\\site-packages\\cv2\\data\\haarcascade_frontalface_default.xml"
 
@@ -38,6 +45,7 @@ class FaceDetector(object):
         x, y, w, h = bbox
         x1, y1 = x + w, y + h
         white = (255, 255, 255)
+
         # Top left corner
         cv2.rectangle(img, bbox, white, rt)
         cv2.line((img), (x, y), (x + l, y), white, t)
@@ -97,7 +105,7 @@ def main():
         )
         cv2.imshow("face_cam", img)
 
-        # Exit if the 'q' key is pressed, use waitKey(1) for fastest fps
+        # Exit if the "q" key is pressed, use waitKey(1) for fastest fps
         if cv2.waitKey(1) & 0xFF == ord("q"):
             print("Quitting video...")
             break

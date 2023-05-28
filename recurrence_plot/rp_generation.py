@@ -1,11 +1,18 @@
 import cv2
-import os
-import mediapipe as mp
-import time
-import numpy as np
 import math
+
+import mediapipe as mp
+import numpy as np
 import matplotlib.pyplot as plt
+
 from pyts.image import RecurrencePlot
+
+"""
+This file creates recurrence plots for a given image directory.
+
+Author: Andrei Borg
+Date: May 28, 2023
+"""
 
 
 class FaceMeshDetector:
@@ -58,6 +65,7 @@ class FaceMeshDetector:
             for faceLms in self.results.multi_face_landmarks:
                 if draw:
                     face = []
+                    # Point indexes for left and right corner of the mouth, ears, and eye lids (top and bottom)
                     custom_points = [93, 323, 57, 291, 159, 23, 385, 253]
                     for p in custom_points:
                         ih, iw, ic = img.shape
@@ -80,6 +88,7 @@ class FaceMeshDetector:
                             (x, y),
                             cv2.FONT_HERSHEY_SIMPLEX,
                             0.15,
+                            # Color of the landmarks
                             (255, 255, 255),
                             1,
                         )
@@ -87,12 +96,9 @@ class FaceMeshDetector:
                         face.append([x, y])
                         # Calculate the eucledian distance between the landmarks
                         if p == 57:
-                            # print("EUC distance: ", euc_dist)
                             euc_dist_left_mouth.append(math.dist([x, y], left_ear))
-                            # print ("List:", euc_dists)
                         if p == 291:
                             euc_dist_right_mouth.append(math.dist([x, y], right_ear))
-                            # print ("List:", euc_dist_right_mouth)
                         if p == 23:
                             euc_dist_left_eye.append(math.dist([x, y], left_upper_eye))
                         if p == 253:
@@ -112,10 +118,9 @@ class FaceMeshDetector:
 def main():
     ## ----- Mouth ----- ##
 
-    # Specify your path to your video file here + other ariables for quick editing
+    # Specify your path to your video file here
     video_path = "D:\\Kandidatarbete\\Dataset Face\\stroke\\Mouth\\Andrei_wL1.mp4"
     save_name = "D:\\Kandidatarbete\\new\\mouth.png"
-    # max_frame_length = 86
 
     # Use video_path or 0 for webcam
     cap = cv2.VideoCapture(video_path)
@@ -128,7 +133,6 @@ def main():
     euc_distance_right_eye = []
 
     # Loop through each video frame
-    # for i in range(max_frame_length):
     while True:
         success, img = cap.read()
 
@@ -146,7 +150,7 @@ def main():
 
         cv2.imshow("face_cam", img)
 
-        # Exit if the 'q' key is pressed, use waitKey(1) for fastest fps
+        # Exit if the "q" key is pressed, use waitKey(1) for fastest fps
         if cv2.waitKey(2) & 0xFF == ord("q"):
             print("Quitting video...")
             break
@@ -167,52 +171,55 @@ def main():
         euc_rm.reshape(1, -1)
     )[0]
 
-    # Create a figure with three subplots
-    fig, axs = plt.subplots(nrows=1, ncols=3, figsize=(10, 5))
-
-    # Plot the first recurrence plot in the first subplot
-    axs[0].imshow(rp_lm, cmap="gray")
-    axs[0].set_title("Vänster")
-    axs[0].axis("off")
-    axs[0].invert_yaxis()
-
-    # Plot the second recurrence plot in the second subplot
-    axs[1].imshow(rp_rm, cmap="gray")
-    axs[1].set_title("Höger")
-    axs[1].axis("off")
-    axs[1].invert_yaxis()
-
     # Concatenate the two recurrence plots horizontally
     concatenated_rp = np.concatenate((rp_lm, rp_rm), axis=1)
 
-    # Plot the concatenated recurrence plot in the third subplot
-    axs[2].imshow(concatenated_rp, cmap="gray")
-    axs[2].set_title("Kombinerade Recurrence Plots")
-    axs[2].axis("off")
-    axs[2].invert_yaxis()
+    # Create a figure with three subplots
+    # NOTE: This is for demonstration purposes only, go to the next "NOTE" section for the actual plotting
+
+    # fig, axs = plt.subplots(nrows=1, ncols=3, figsize=(10, 5))
+
+    ## Plot the first recurrence plot in the first subplot
+    # axs[0].imshow(rp_lm, cmap="gray")
+    # axs[0].set_title("Left")
+    # axs[0].axis("off")
+    # axs[0].invert_yaxis()
+
+    ## Plot the second recurrence plot in the second subplot
+    # axs[1].imshow(rp_rm, cmap="gray")
+    # axs[1].set_title("Right")
+    # axs[1].axis("off")
+    # axs[1].invert_yaxis()
+
+    ## Plot the concatenated recurrence plot in the third subplot
+    # axs[2].imshow(concatenated_rp, cmap="gray")
+    # axs[2].set_title("Kombinerade Recurrence Plots")
+    # axs[2].axis("off")
+    # axs[2].invert_yaxis()
+
+    ## Adjust the layout and save the figure with a specific size
+    # fig.set_size_inches(10, 5)
+    # plt.savefig("recurrence_plots.png", bbox_inches="tight", pad_inches=0, dpi=300)
+    # plt.show()
+
+    # Create a figure and plot the concatenated recurrence plot
+    # NOTE: This is used as images data for the neural networks
+    fig, ax = plt.subplots(figsize=(5, 5))
+    ax.axis("off")  # Turn off axis
+    ax.imshow(concatenated_rp, cmap="gray")
+    # ax.set_title('Concatenated Recurrence Plot')
+    ax.invert_yaxis()  # Flip the y-axis
 
     # Adjust the layout and save the figure with a specific size
-    fig.set_size_inches(10, 5)
-    plt.savefig("recurrence_plots.png", bbox_inches="tight", pad_inches=0, dpi=300)
-    plt.show()
-    ## Create a figure and plot the concatenated recurrence plot
-    # fig, ax = plt.subplots(figsize=(5, 5))
-    # ax.axis("off")  # Turn off axis
-    # ax.imshow(concatenated_rp, cmap="gray")
-    ## ax.set_title('Concatenated Recurrence Plot')
-    # ax.invert_yaxis()  # Flip the y-axis
-    #
-    ## Adjust the layout and save the figure with a specific size
-    # fig.set_size_inches(1, 1)
-    # plt.savefig(save_name, bbox_inches="tight", pad_inches=0, dpi=300)
-    # plt.close()
+    fig.set_size_inches(1, 1)
+    plt.savefig(save_name, bbox_inches="tight", pad_inches=0, dpi=300)
+    plt.close()
 
     ## ----- Eyes ----- ##
 
     # Specify your path to your video file here + other ariables for quick editing
     video_path2 = "D:\\Kandidatarbete\\Dataset Face\\stroke\\Eyes\\Facialispares 3 - Marcus - 1.mp4"
     save_name2 = "D:\\Kandidatarbete\\new\\eye.png"
-    # max_frame_length = 86
 
     # Use video_path or 0 for webcam
     cap = cv2.VideoCapture(video_path2)
@@ -225,7 +232,6 @@ def main():
     euc_distance_right_eye = []
 
     # Loop through each video frame
-    # for i in range(max_frame_length):
     while True:
         success, img = cap.read()
 
@@ -243,7 +249,7 @@ def main():
 
         cv2.imshow("face_cam", img)
 
-        # Exit if the 'q' key is pressed, use waitKey(1) for fastest fps
+        # Exit if the "q" key is pressed, use waitKey(1) for fastest fps
         if cv2.waitKey(2) & 0xFF == ord("q"):
             print("Quitting video...")
             break
@@ -264,7 +270,6 @@ def main():
     # Concatenate the two recurrence plots horizontally
     concatenated_rp = np.concatenate((rp_le, rp_re), axis=1)
 
-    # Create a figure with three subplots
     # Create a figure and plot the concatenated recurrence plot
     fig, ax = plt.subplots(figsize=(5, 5))
     ax.axis("off")  # Turn off axis
